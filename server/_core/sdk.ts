@@ -200,8 +200,10 @@ class SDKServer {
   async verifySession(
     cookieValue: string | undefined | null
   ): Promise<{ openId: string; appId: string; name: string } | null> {
+    // Anonymous visitors hit public procedures (e.g. auth.me) without a cookie;
+    // that's the normal path, not an error worth logging. Real verification
+    // failures (bad signature, expired) are still logged in the catch below.
     if (!cookieValue) {
-      console.warn("[Auth] Missing session cookie");
       return null;
     }
 
@@ -260,6 +262,12 @@ class SDKServer {
     // Regular authentication flow
     const cookies = this.parseCookies(req.headers.cookie);
     const sessionCookie = cookies.get(COOKIE_NAME);
+
+    // Fast path for anonymous visitors: skip JWT verify + DB lookup entirely.
+    if (!sessionCookie) {
+      throw ForbiddenError("Missing session cookie");
+    }
+
     const session = await this.verifySession(sessionCookie);
 
     if (!session) {
