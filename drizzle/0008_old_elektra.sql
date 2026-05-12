@@ -1,0 +1,1 @@
+ALTER TABLE `bookings` MODIFY COLUMN `bookingStatus` enum('new','waiting_confirmation','confirmed','completed','cancelled','rejected','needs_follow_up','refunded','partially_refunded') NOT NULL DEFAULT 'new';

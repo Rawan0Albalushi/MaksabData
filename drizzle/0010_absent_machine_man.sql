@@ -1,0 +1,1 @@
+ALTER TABLE `import_batches` MODIFY COLUMN `importType` enum('stores','menu_products','customers','orders','payments','mandoubs','mandoub_performance','mandoub_dues','refunds','revenues') NOT NULL;

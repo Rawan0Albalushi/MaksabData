@@ -1,0 +1,4 @@
+ALTER TABLE `stores` MODIFY COLUMN `storeCategory` enum('restaurant','cafe','supermarket','sweets_shop','bakery','store','other');--> statement-breakpoint
+ALTER TABLE `stores` MODIFY COLUMN `communicationStatus` enum('yes','no','no_response','needs_follow_up','not_specified');--> statement-breakpoint
+ALTER TABLE `stores` MODIFY COLUMN `addedInSystem` enum('yes','no','in_progress','missing_data','not_specified');--> statement-breakpoint
+ALTER TABLE `stores` MODIFY COLUMN `activationStatus` enum('active','inactive','temporarily_stopped','hidden','pending_activation','not_specified') DEFAULT 'inactive';
