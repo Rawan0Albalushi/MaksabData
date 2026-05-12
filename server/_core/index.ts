@@ -8,6 +8,7 @@ import express, {
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
+import { registerBootstrapAuthRoutes } from "./bootstrapAuth";
 import { registerDevAuthRoutes } from "./devAuth";
 import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
@@ -47,6 +48,12 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
+  // Behind Railway's edge proxy, `req.protocol` is "http" and `req.ip` is
+  // the proxy's address unless we tell Express to honor X-Forwarded-* headers.
+  // This is required for `secure` cookies to be set correctly and for
+  // accurate audit logging of client IPs.
+  app.set("trust proxy", true);
+
   // Lightweight request logger so we can see what Railway is sending us.
   // Express otherwise prints nothing, which is why 502s look like black boxes.
   app.use((req: Request, _res: Response, next: NextFunction) => {
@@ -66,6 +73,7 @@ async function startServer() {
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   registerDevAuthRoutes(app);
+  registerBootstrapAuthRoutes(app);
   // tRPC API
   app.use(
     "/api/trpc",

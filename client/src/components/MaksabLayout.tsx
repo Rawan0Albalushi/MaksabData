@@ -168,6 +168,10 @@ export default function MaksabLayout({ children }: { children: ReactNode }) {
   }
 
   if (!user) {
+    const authError =
+      typeof window !== "undefined"
+        ? new URLSearchParams(window.location.search).get("auth_error")
+        : null;
     return (
       <div className="flex items-center justify-center min-h-screen bg-background" dir={dir}>
         <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
@@ -178,6 +182,14 @@ export default function MaksabLayout({ children }: { children: ReactNode }) {
             <h1 className="text-2xl font-bold">مكسب - MAKSAB PRO</h1>
             <p className="text-muted-foreground text-center">{t("common.signIn")}</p>
           </div>
+          {authError && (
+            <div className="w-full rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+              {language === "ar"
+                ? "فشل تسجيل الدخول. يرجى المحاولة مرة أخرى."
+                : "Sign-in failed. Please try again."}
+              <span className="block opacity-70 text-xs mt-1">({authError})</span>
+            </div>
+          )}
           <Button onClick={() => (window.location.href = getLoginUrl())} size="lg" className="w-full">
             {t("common.signIn")}
           </Button>
