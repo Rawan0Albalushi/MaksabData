@@ -9,8 +9,11 @@ type UseAuthOptions = {
 };
 
 export function useAuth(options?: UseAuthOptions) {
-  const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
-    options ?? {};
+  // Note: don't compute the default redirectPath here. `getLoginUrl()` can
+  // throw if `VITE_OAUTH_PORTAL_URL` / `VITE_APP_ID` weren't baked into the
+  // bundle, and we don't want that to crash every page render — only when
+  // we actually try to redirect.
+  const { redirectOnUnauthenticated = false, redirectPath } = options ?? {};
   const utils = trpc.useUtils();
 
   const meQuery = trpc.auth.me.useQuery(undefined, {
@@ -65,9 +68,17 @@ export function useAuth(options?: UseAuthOptions) {
     if (meQuery.isLoading || logoutMutation.isPending) return;
     if (state.user) return;
     if (typeof window === "undefined") return;
-    if (window.location.pathname === redirectPath) return;
 
-    window.location.href = redirectPath
+    let target: string;
+    try {
+      target = redirectPath ?? getLoginUrl();
+    } catch (err) {
+      console.error("[useAuth] Cannot redirect to login:", err);
+      return;
+    }
+
+    if (window.location.pathname === target) return;
+    window.location.href = target;
   }, [
     redirectOnUnauthenticated,
     redirectPath,

@@ -190,7 +190,21 @@ export default function MaksabLayout({ children }: { children: ReactNode }) {
               <span className="block opacity-70 text-xs mt-1">({authError})</span>
             </div>
           )}
-          <Button onClick={() => (window.location.href = getLoginUrl())} size="lg" className="w-full">
+          <Button
+            onClick={() => {
+              try {
+                window.location.href = getLoginUrl();
+              } catch (err) {
+                console.error("[Auth] Cannot navigate to login:", err);
+                alert(
+                  "Login is not configured. Visit /api/admin/bootstrap-login?secret=... " +
+                    "or set VITE_OAUTH_PORTAL_URL and VITE_APP_ID and rebuild."
+                );
+              }
+            }}
+            size="lg"
+            className="w-full"
+          >
             {t("common.signIn")}
           </Button>
         </div>

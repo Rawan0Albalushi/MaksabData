@@ -70,7 +70,15 @@ export default function DashboardLayout({
           </div>
           <Button
             onClick={() => {
-              window.location.href = getLoginUrl();
+              try {
+                window.location.href = getLoginUrl();
+              } catch (err) {
+                console.error("[Auth] Cannot navigate to login:", err);
+                alert(
+                  "Login is not configured. Visit /api/admin/bootstrap-login?secret=... " +
+                    "or set VITE_OAUTH_PORTAL_URL and VITE_APP_ID and rebuild."
+                );
+              }
             }}
             size="lg"
             className="w-full shadow-lg hover:shadow-xl transition-all"
