@@ -54,14 +54,21 @@ async function startServer() {
   }
 
   const preferredPort = parseInt(process.env.PORT || "3000");
-  const port = await findAvailablePort(preferredPort);
+  // In production (e.g. Railway), bind directly to the assigned PORT on
+  // 0.0.0.0 so the platform's proxy can reach the server. Port scanning is
+  // only useful in local dev where multiple instances may collide.
+  const isProduction = process.env.NODE_ENV === "production";
+  const port = isProduction
+    ? preferredPort
+    : await findAvailablePort(preferredPort);
 
-  if (port !== preferredPort) {
+  if (!isProduction && port !== preferredPort) {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+  const host = isProduction ? "0.0.0.0" : "localhost";
+  server.listen(port, host, () => {
+    console.log(`Server running on http://${host}:${port}/`);
   });
 }
 
